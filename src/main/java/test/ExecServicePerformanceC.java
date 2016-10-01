@@ -28,6 +28,8 @@ public class ExecServicePerformanceC {
 		long prevTime = 0;
 		long runTime = 0;
 		
+		System.out.println("WorkLoad:"+WorkLoad);
+		
 		List<List<Object>> stat = Lists.newArrayList();
 		stat.add(Arrays.asList(new Object[]{"threadsNum","run-time(ms)", "percentage"}));
 		for (int threadsNum = START; threadsNum <= END; threadsNum += STEP) {
@@ -40,7 +42,7 @@ public class ExecServicePerformanceC {
 			}));
 			prevTime=runTime;
 		}
-		writeStat(stat,"/Users/andy/Desktop/ExecServicePerformanceC.csv");
+		writeStat(stat,"/tmp/ExecServicePerformanceC.csv");
 	}
 	
 	private static void writeStat(List<List<Object>> stat, String filePath){

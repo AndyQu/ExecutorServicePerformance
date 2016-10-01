@@ -15,14 +15,19 @@ import com.google.common.collect.Lists;
 
 public class ExecServicePerformanceC {
 
-	private static int COUNT = 100000;
+	private static final int COUNT = 100000;
+	
+	private static final int STEP = 4;
+	private static final int START = 1;
+	private static final int END = 100;
+	
+//	private static final int WorkLoad=10000;
+	private static final int WorkLoad=5000;
 
 	public static void main(String[] args) throws InterruptedException {
 		long prevTime = 0;
 		long runTime = 0;
-		final int STEP = 4;
-		final int START = 4;
-		final int END = 100;
+		
 		List<List<Object>> stat = Lists.newArrayList();
 		stat.add(Arrays.asList(new Object[]{"threadsNum","run-time(ms)", "percentage"}));
 		for (int threadsNum = START; threadsNum <= END; threadsNum += STEP) {
@@ -69,9 +74,9 @@ public class ExecServicePerformanceC {
 		long stop=0;
 		System.out.println("provisioned " + threadNum + " batches to be executed");
 /*
-		long start = System.currentTimeMillis();
+		start = System.currentTimeMillis();
 		simpleCompuation(COUNT);
-		long stop = System.currentTimeMillis();
+		stop = System.currentTimeMillis();
 		System.out.println("simpleCompuation:" + (stop - start));
 */
 /*
@@ -93,13 +98,13 @@ public class ExecServicePerformanceC {
 		return stop - start;
 	}
 
-	private static void loop() {
+	private static void unitWork() {
 		/**
 		 * 不要使用Math.random()*Math.random()。因为这种用法只产生一个Random作种子，后续的Math.random()
 		 * 调用都会使用同一个种子。 这样，多个线程之间产生竞争，使得ExecutorService的优势完全无法发挥。
 		 */
 		Random r = new java.util.Random();
-		for (int i = 0; i < 2000; i++) {
+		for (int i = 0; i < WorkLoad; i++) {
 			double x = r.nextDouble() * r.nextDouble();
 		}
 	}
@@ -111,7 +116,7 @@ public class ExecServicePerformanceC {
 
 				@Override
 				public void run() {
-					loop();
+					unitWork();
 				}
 
 			}.run();
@@ -128,12 +133,12 @@ public class ExecServicePerformanceC {
 				for (int i = 0; i < count; i++) {
 					if (i % 1000 == 0) {
 						long t1 = System.nanoTime();
-						loop();
+						unitWork();
 						long t2 = System.nanoTime();
 						println("thread:" + Thread.currentThread().getId() + ".      priority:"
 								+ Thread.currentThread().getPriority() + ".      time consumed:" + (t2 - t1));
 					} else {
-						loop();
+						unitWork();
 					}
 				}
 				long endTime = System.currentTimeMillis();
@@ -184,12 +189,12 @@ public class ExecServicePerformanceC {
 			for (int i = 0; i < countdown; i++) {
 				if (i % 1000 == 0) {
 					long t1 = System.nanoTime();
-					loop();
+					unitWork();
 					long t2 = System.nanoTime();
 					println("thread:" + Thread.currentThread().getId() + ".      priority:"
 							+ Thread.currentThread().getPriority() + ".      time consumed:" + (t2 - t1));
 				} else {
-					loop();
+					unitWork();
 				}
 			}
 			long endTime = System.currentTimeMillis();

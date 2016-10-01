@@ -6,7 +6,7 @@ public class Testor {
 	@Test
 	public void testA(){
 		try {
-			ExecServicePerformanceB.main(null);
+			ExecServicePerformanceC.main(null);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

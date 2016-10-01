@@ -1,5 +1,9 @@
 package test;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
@@ -7,43 +11,75 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Lists;
+
 public class ExecServicePerformanceC {
 
 	private static int COUNT = 100000;
 
 	public static void main(String[] args) throws InterruptedException {
-		System.out.println(".      priority:" + Thread.currentThread().getPriority());
+		long prevTime = 0;
+		long runTime = 0;
+		final int STEP = 4;
+		final int START = 4;
+		final int END = 100;
+		List<List<Object>> stat = Lists.newArrayList();
+		stat.add(Arrays.asList(new Object[]{"threadsNum","run-time(ms)", "percentage"}));
+		for (int threadsNum = START; threadsNum <= END; threadsNum += STEP) {
+			runTime = runTest(threadsNum);
+			double percentage =prevTime==0?0:(runTime - prevTime)*1.0 / prevTime;
+			stat.add(Arrays.asList(new Object[]{
+					threadsNum, 
+					runTime, 
+					Math.round(percentage*100.0)/100.0
+			}));
+			prevTime=runTime;
+		}
+		writeStat(stat,"/Users/andy/Desktop/ExecServicePerformanceC.csv");
+	}
+	
+	private static void writeStat(List<List<Object>> stat, String filePath){
+		try {
+			//dont append
+			BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false));
+			for(List<Object> row:stat){
+				for(Object e:row){
+					writer.write(String.format("%s,", e));
+				}
+				writer.newLine();
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static long runTest(int threadNum) throws InterruptedException {
+		final ExecutorService es = Executors.newFixedThreadPool(threadNum);
 
-		int cpus = Runtime.getRuntime().availableProcessors();
-//		cpus = 4;
+		final Vector<Batch> batches = new Vector<Batch>(threadNum);
 
-		final ExecutorService es = Executors.newFixedThreadPool(cpus);
+		final int batchComputations = COUNT / threadNum;
 
-		final Vector<Batch> batches = new Vector<Batch>(cpus);
-
-		final int batchComputations = COUNT / cpus;
-
-		for (int i = 0; i < cpus; i++) {
+		for (int i = 0; i < threadNum; i++) {
 			batches.add(new Batch(batchComputations));
 		}
 
-		System.out.println("provisioned " + cpus + " batches to be executed");
-
-		// warmup
-		// simpleCompuation();
-		// computationWithObjCreation();
-		// computationWithObjCreationAndExecutors( es, batches );
-
+		long start=0;
+		long stop=0;
+		System.out.println("provisioned " + threadNum + " batches to be executed");
+/*
 		long start = System.currentTimeMillis();
 		simpleCompuation(COUNT);
 		long stop = System.currentTimeMillis();
 		System.out.println("simpleCompuation:" + (stop - start));
-
+*/
+/*
 		start = System.currentTimeMillis();
 		computationWithObjCreation();
 		stop = System.currentTimeMillis();
 		System.out.println("computationWithObjCreation:" + (stop - start));
-
+*/
 		// Executor
 
 		start = System.currentTimeMillis();
@@ -54,16 +90,17 @@ public class ExecServicePerformanceC {
 		// some extra time. But the result should still be clear.
 		stop = System.currentTimeMillis();
 		System.out.println("computationWithObjCreationAndExecutors:" + (stop - start));
+		return stop - start;
 	}
 
 	private static void loop() {
 		/**
-		 * 不要使用Math.random()*Math.random()。因为这种用法只产生一个Random作种子，后续的Math.random()调用都会使用同一个种子。
-		 * 这样，多个线程之间产生竞争，使得ExecutorService的优势完全无法发挥。
+		 * 不要使用Math.random()*Math.random()。因为这种用法只产生一个Random作种子，后续的Math.random()
+		 * 调用都会使用同一个种子。 这样，多个线程之间产生竞争，使得ExecutorService的优势完全无法发挥。
 		 */
 		Random r = new java.util.Random();
 		for (int i = 0; i < 2000; i++) {
-			double x = r.nextDouble()*r.nextDouble();
+			double x = r.nextDouble() * r.nextDouble();
 		}
 	}
 
@@ -80,8 +117,8 @@ public class ExecServicePerformanceC {
 			}.run();
 		}
 		long endTime = System.currentTimeMillis();
-		System.out.println("thread:" + Thread.currentThread().getId() + ".     time end:" + endTime
-				+ ".      time consumed:" + (endTime - startTime));
+		println("thread:" + Thread.currentThread().getId() + ".     time end:" + endTime + ".      time consumed:"
+				+ (endTime - startTime));
 	}
 
 	private static void simpleCompuation(int count) {
@@ -94,14 +131,13 @@ public class ExecServicePerformanceC {
 						loop();
 						long t2 = System.nanoTime();
 						println("thread:" + Thread.currentThread().getId() + ".      priority:"
-								+ Thread.currentThread().getPriority()
-								+ ".      time consumed:" + (t2 - t1));
+								+ Thread.currentThread().getPriority() + ".      time consumed:" + (t2 - t1));
 					} else {
 						loop();
 					}
 				}
 				long endTime = System.currentTimeMillis();
-				System.out.println("thread:" + Thread.currentThread().getId() + ".     time end:" + endTime
+				println("thread:" + Thread.currentThread().getId() + ".     time end:" + endTime
 						+ ".      time consumed:" + (endTime - startTime));
 			}
 		};
@@ -117,8 +153,8 @@ public class ExecServicePerformanceC {
 	private static void computationWithObjCreationAndExecutors(ExecutorService es, List<Batch> batches)
 			throws InterruptedException {
 
-		System.out.println("computationWithObjCreationAndExecutors thread:" + Thread.currentThread().getId()
-				+ ".     time begin:" + System.currentTimeMillis());
+		println("computationWithObjCreationAndExecutors thread:" + Thread.currentThread().getId() + ".     time begin:"
+				+ System.currentTimeMillis());
 		for (Batch batch : batches) {
 			es.submit(batch);
 		}
@@ -138,7 +174,7 @@ public class ExecServicePerformanceC {
 		public void run() {
 			long startTime = System.currentTimeMillis();
 			int countdown = computations;
-			System.out.println("thread:" + Thread.currentThread().getId() + ".      priority:"
+			println("thread:" + Thread.currentThread().getId() + ".      priority:"
 					+ Thread.currentThread().getPriority() + ".     count:" + countdown + ".     time begin:"
 					+ startTime);
 			/*
@@ -151,20 +187,20 @@ public class ExecServicePerformanceC {
 					loop();
 					long t2 = System.nanoTime();
 					println("thread:" + Thread.currentThread().getId() + ".      priority:"
-							+ Thread.currentThread().getPriority() + ".      time consumed:"
-							+ (t2 - t1));
+							+ Thread.currentThread().getPriority() + ".      time consumed:" + (t2 - t1));
 				} else {
 					loop();
 				}
 			}
 			long endTime = System.currentTimeMillis();
-			System.out.println("thread:" + Thread.currentThread().getId() + ".      priority:"
+			println("thread:" + Thread.currentThread().getId() + ".      priority:"
 					+ Thread.currentThread().getPriority() + ".     time end:" + endTime + ".      time consumed:"
 					+ (endTime - startTime));
 
 		}
 	}
-	private static void println(String str){
-//		System.out.println(str);
+
+	private static void println(String str) {
+		// System.out.println(str);
 	}
 }

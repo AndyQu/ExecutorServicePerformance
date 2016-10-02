@@ -11,25 +11,33 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 
 public class ExecServicePerformanceC {
-
-	private static final int COUNT = 10000;
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExecServicePerformanceC.class);
+	private static final int COUNT = 100000;
 	
 	private static final int START = 8;
-	private static final int STEP = START;
-	private static final int END = 2000;
+	private static final int STEP = START+2;
+//	private static final int END = 2000;
+	private static final int END = 200;
 	
-//	private static final int WorkLoad=10000;
+	private static final int WorkLoad=10000;
 //	private static final int WorkLoad=5000;
-	private static final int WorkLoad=1;
+//	private static final int WorkLoad=1;
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException, IOException {
 		long prevTime = 0;
 		long runTime = 0;
 		
-		System.out.println("WorkLoad:"+WorkLoad);
+		LOGGER.info("press any number to start working:");
+		int i=System.in.read();
+		Thread.sleep(5*1000);
+		
+		LOGGER.info("WorkLoad:"+WorkLoad);
 		
 		List<List<Object>> stat = Lists.newArrayList();
 		stat.add(Arrays.asList(new Object[]{"threadsNum","run-time(ms)", "percentage"}));
@@ -42,6 +50,7 @@ public class ExecServicePerformanceC {
 					Math.round(percentage*100.0)/100.0
 			}));
 			prevTime=runTime;
+			Thread.sleep(5*1000);
 		}
 		writeStat(stat,"/tmp/ExecServicePerformanceC.csv");
 	}
@@ -75,18 +84,18 @@ public class ExecServicePerformanceC {
 
 		long start=0;
 		long stop=0;
-		System.out.println("provisioned " + threadNum + " batches to be executed");
+		LOGGER.info("provisioned " + threadNum + " batches to be executed");
 /*
 		start = System.currentTimeMillis();
 		simpleCompuation(COUNT);
 		stop = System.currentTimeMillis();
-		System.out.println("simpleCompuation:" + (stop - start));
+		LOGGER.info("simpleCompuation:" + (stop - start));
 */
 /*
 		start = System.currentTimeMillis();
 		computationWithObjCreation();
 		stop = System.currentTimeMillis();
-		System.out.println("computationWithObjCreation:" + (stop - start));
+		LOGGER.info("computationWithObjCreation:" + (stop - start));
 */
 		// Executor
 
@@ -97,7 +106,7 @@ public class ExecServicePerformanceC {
 		// Note: Executor#shutdown() and Executor#awaitTermination() requires
 		// some extra time. But the result should still be clear.
 		stop = System.currentTimeMillis();
-		System.out.println("computationWithObjCreationAndExecutors:" + (stop - start));
+		LOGGER.info("computationWithObjCreationAndExecutors:" + (stop - start));
 		return stop - start;
 	}
 
@@ -209,6 +218,6 @@ public class ExecServicePerformanceC {
 	}
 
 	private static void println(String str) {
-		// System.out.println(str);
+		 LOGGER.debug(str);
 	}
 }

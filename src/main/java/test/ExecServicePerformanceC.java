@@ -15,14 +15,15 @@ import com.google.common.collect.Lists;
 
 public class ExecServicePerformanceC {
 
-	private static final int COUNT = 100000;
+	private static final int COUNT = 10000;
 	
-	private static final int STEP = 4;
-	private static final int START = 1;
-	private static final int END = 100;
+	private static final int START = 8;
+	private static final int STEP = START;
+	private static final int END = 2000;
 	
 //	private static final int WorkLoad=10000;
-	private static final int WorkLoad=5000;
+//	private static final int WorkLoad=5000;
+	private static final int WorkLoad=1;
 
 	public static void main(String[] args) throws InterruptedException {
 		long prevTime = 0;
@@ -66,10 +67,10 @@ public class ExecServicePerformanceC {
 
 		final Vector<Batch> batches = new Vector<Batch>(threadNum);
 
-		final int batchComputations = COUNT / threadNum;
+		final Double batchComputations = Math.ceil(COUNT*1.0 / threadNum);
 
 		for (int i = 0; i < threadNum; i++) {
-			batches.add(new Batch(batchComputations));
+			batches.add(new Batch(batchComputations.intValue()));
 		}
 
 		long start=0;

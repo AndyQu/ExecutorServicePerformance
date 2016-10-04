@@ -1,3 +1,8 @@
+/**
+ * 监控一个进程的所有线程status文件
+ * Ubuntu Server  16.04.1 LTS上测试通过
+ * @return
+ */
 def pid=args[0]
 File folder=new File("/proc/${pid}/task/")
 new File("/tmp/${pid}/").mkdir()
@@ -16,4 +21,4 @@ while(folder.exists()){
 	}
 	Thread.sleep(1*1000)
 }
-println "${folder} exits"
+println "process stopped:${folder}"

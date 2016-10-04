@@ -26,7 +26,7 @@ public class ExecServicePerformanceC {
 	private static final int START = 2;
 	private static final int STEP = START+4;
 //	private static final int END = 2000;
-	private static final int END = 70;
+	private static final int END = 30;
 	
 	private static final int WorkLoad=10000;
 //	private static final int WorkLoad=5000;

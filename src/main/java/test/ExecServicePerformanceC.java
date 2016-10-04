@@ -1,8 +1,11 @@
 package test;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -23,7 +26,7 @@ public class ExecServicePerformanceC {
 	private static final int START = 8;
 	private static final int STEP = START+2;
 //	private static final int END = 2000;
-	private static final int END = 200;
+	private static final int END = 70;
 	
 	private static final int WorkLoad=10000;
 //	private static final int WorkLoad=5000;
@@ -33,8 +36,9 @@ public class ExecServicePerformanceC {
 		long prevTime = 0;
 		long runTime = 0;
 		
-		LOGGER.info("press any number to start working:");
-		int i=System.in.read();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charset.forName("UTF8")));
+		LOGGER.info("press Enter to start working:");
+		reader.readLine();
 		Thread.sleep(5*1000);
 		
 		LOGGER.info("WorkLoad:"+WorkLoad);
@@ -191,9 +195,7 @@ public class ExecServicePerformanceC {
 		public void run() {
 			long startTime = System.currentTimeMillis();
 			int countdown = computations;
-			println("thread:" + Thread.currentThread().getId() + ".      priority:"
-					+ Thread.currentThread().getPriority() + ".     count:" + countdown + ".     time begin:"
-					+ startTime);
+			LOGGER.info("event=thread_begin name={} startTime={}", Thread.currentThread().getName(), startTime);
 			/*
 			 * while ( countdown-- > -1 ) { double x = Math.random() *
 			 * Math.random(); }
@@ -210,10 +212,7 @@ public class ExecServicePerformanceC {
 				}
 			}
 			long endTime = System.currentTimeMillis();
-			println("thread:" + Thread.currentThread().getId() + ".      priority:"
-					+ Thread.currentThread().getPriority() + ".     time end:" + endTime + ".      time consumed:"
-					+ (endTime - startTime));
-
+			LOGGER.info("event=thread_finish name={} startTime={} endTime={} time={}", Thread.currentThread().getName(), startTime, endTime, endTime-startTime);
 		}
 	}
 

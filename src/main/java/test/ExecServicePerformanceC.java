@@ -21,10 +21,10 @@ import com.google.common.collect.Lists;
 
 public class ExecServicePerformanceC {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExecServicePerformanceC.class);
-	private static final int COUNT = 100000;
+	private static final int COUNT = 50000;
 	
 	private static final int START = 2;
-	private static final int STEP = START+4;
+	private static final int STEP = 4;
 //	private static final int END = 2000;
 	private static final int END = 30;
 	
@@ -39,14 +39,16 @@ public class ExecServicePerformanceC {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charset.forName("UTF8")));
 		LOGGER.info("press Enter to start working:");
 		reader.readLine();//使用gradle执行时，被忽略
-		Thread.sleep(5*1000);
+		Thread.sleep(10*1000);
 
 		LOGGER.info("WorkLoad:"+WorkLoad);
 		
 		List<List<Object>> stat = Lists.newArrayList();
 		stat.add(Arrays.asList(new Object[]{"threadsNum","run-time(ms)", "percentage"}));
 		for (int threadsNum = START; threadsNum <= END; threadsNum += STEP) {
+			//LOGGER.info("New test begin. Run Jstack");
 			runTime = runTest(threadsNum);
+			//LOGGER.info("sleep 10s");
 			double percentage =prevTime==0?0:(runTime - prevTime)*1.0 / prevTime;
 			stat.add(Arrays.asList(new Object[]{
 					threadsNum, 
@@ -54,7 +56,7 @@ public class ExecServicePerformanceC {
 					Math.round(percentage*100.0)/100.0
 			}));
 			prevTime=runTime;
-			Thread.sleep(5*1000);
+			Thread.sleep(2*1000);
 		}
 		writeStat(stat,"/tmp/ExecServicePerformanceC.csv");
 		LOGGER.info("Good Night~~~(Please Say Goodbye, Otherwise I won't quit!!!)");
@@ -215,7 +217,7 @@ public class ExecServicePerformanceC {
 				}
 			}
 			long endTime = System.currentTimeMillis();
-			LOGGER.info("event=thread_finish name={} startTime={} endTime={} time={}", Thread.currentThread().getName(), startTime, endTime, endTime-startTime);
+			LOGGER.debug("event=thread_finish name={} startTime={} endTime={} time={}", Thread.currentThread().getName(), startTime, endTime, endTime-startTime);
 		}
 	}
 

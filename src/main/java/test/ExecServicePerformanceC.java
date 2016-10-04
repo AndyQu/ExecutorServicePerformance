@@ -38,9 +38,9 @@ public class ExecServicePerformanceC {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charset.forName("UTF8")));
 		LOGGER.info("press Enter to start working:");
-		reader.readLine();
+		reader.readLine();//使用gradle执行时，被忽略
 		Thread.sleep(5*1000);
-		
+
 		LOGGER.info("WorkLoad:"+WorkLoad);
 		
 		List<List<Object>> stat = Lists.newArrayList();
@@ -58,7 +58,8 @@ public class ExecServicePerformanceC {
 		}
 		writeStat(stat,"/tmp/ExecServicePerformanceC.csv");
 		LOGGER.info("Good Night~~~(Please Say Goodbye, Otherwise I won't quit!!!)");
-		reader.readLine();
+		reader.readLine();//使用gradle执行时，被忽略
+		Thread.sleep(50*1000);
 	}
 	
 	private static void writeStat(List<List<Object>> stat, String filePath){

@@ -57,6 +57,8 @@ public class ExecServicePerformanceC {
 			Thread.sleep(5*1000);
 		}
 		writeStat(stat,"/tmp/ExecServicePerformanceC.csv");
+		LOGGER.info("Good Night~~~(Please Say Goodbye, Otherwise I won't quit!!!)");
+		reader.readLine();
 	}
 	
 	private static void writeStat(List<List<Object>> stat, String filePath){

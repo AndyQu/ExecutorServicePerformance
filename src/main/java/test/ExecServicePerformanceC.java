@@ -23,8 +23,8 @@ public class ExecServicePerformanceC {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExecServicePerformanceC.class);
 	private static final int COUNT = 100000;
 	
-	private static final int START = 8;
-	private static final int STEP = START+2;
+	private static final int START = 2;
+	private static final int STEP = START+4;
 //	private static final int END = 2000;
 	private static final int END = 70;
 	
